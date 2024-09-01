@@ -52,7 +52,7 @@ class _AdminScreenState extends State<AdminScreen> {
                   ),
                   Container(
                     child: Text(
-                      "Admin",
+                      user.name,
                       style: TextStyle(color: Colors.black, fontSize: 16),
                     ),
                   )

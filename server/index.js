@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors"); // Import the CORS package
 const authRouter = require("./routes/auth");
 const adminRouter = require("./routes/admin");
+const productRouter = require("./routes/product");
 const PORT = 3000;
 const app = express();
 
@@ -29,6 +30,7 @@ mongoose.connect(DB, {
 // Use the authentication router
 app.use(authRouter);
 app.use(adminRouter);
+ app.use(productRouter);
 
 // Start the server
 app.listen(PORT, () => {

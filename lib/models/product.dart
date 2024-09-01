@@ -4,7 +4,7 @@ class Product {
   final String name;
   final String description;
   final double quantity;
-  final List<Map<String, dynamic>> images;
+  final List<Map<String, dynamic>> images; // List of maps containing image data
   final String category;
   final double price;
   final String? id;
@@ -37,8 +37,7 @@ class Product {
       description: map['description'] ?? '',
       quantity: map['quantity']?.toDouble() ?? 0.0,
       images: List<Map<String, dynamic>>.from(
-          map['images'] ?? []), // Correctly parse images
-
+          map['images'] ?? []), // Ensure correct parsing of images
       category: map['category'] ?? '',
       price: map['price']?.toDouble() ?? 0.0,
       id: map['_id'],

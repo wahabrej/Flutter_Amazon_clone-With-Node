@@ -1,34 +1,36 @@
 import 'package:amazon_clone/constants/global_variables.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:amazon_clone/features/auth/home/screen/category_deals_screen.dart';
 import 'package:flutter/material.dart';
 
-class TopCategory extends StatefulWidget {
-  const TopCategory({super.key});
+class TopCategories extends StatelessWidget {
+  const TopCategories({Key? key}) : super(key: key);
 
-  @override
-  State<TopCategory> createState() => _TopCategoryState();
-}
-
-class _TopCategoryState extends State<TopCategory> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(left: 20),
+    return SizedBox(
       height: 60,
-      color: Colors.white,
       child: ListView.builder(
-          itemCount: GlobalVariables.carouselImages.length,
-          scrollDirection: Axis.horizontal,
-          itemExtent: 94,
-          itemBuilder: (context, index) {
-            return Column(
+        itemCount: GlobalVariables.categoryImages.length,
+        scrollDirection: Axis.horizontal,
+        itemExtent: 75,
+        itemBuilder: (context, index) {
+          final category = GlobalVariables.categoryImages[index];
+          return GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                CategoryDealsScreen.routeName,
+                arguments: category['title'],
+              );
+            },
+            child: Column(
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(50),
                     child: Image.asset(
-                      GlobalVariables.categoryImages[index]['image']!,
+                      category['image']!,
                       fit: BoxFit.cover,
                       height: 40,
                       width: 40,
@@ -36,12 +38,17 @@ class _TopCategoryState extends State<TopCategory> {
                   ),
                 ),
                 Text(
-                  GlobalVariables.categoryImages[index]['title']!,
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
-                )
+                  category['title']!,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
               ],
-            );
-          }),
+            ),
+          );
+        },
+      ),
     );
   }
 }

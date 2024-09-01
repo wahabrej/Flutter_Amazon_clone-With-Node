@@ -1,23 +1,57 @@
-import 'package:amazon_clone/constants/global_variables.dart';
-import 'package:amazon_clone/features/auth/home/screen/widget/AddressBox.dart';
-import 'package:amazon_clone/features/auth/home/screen/widget/carosal_image.dart';
-import 'package:amazon_clone/features/auth/home/screen/widget/deal_of_day.dart';
-import 'package:amazon_clone/features/auth/home/screen/widget/top_category.dart';
-import 'package:amazon_clone/features/search/search_screen.dart';
-
 import 'package:flutter/material.dart';
+import 'package:amazon_clone/common/widgets/loader.dart';
+import 'package:amazon_clone/constants/global_variables.dart';
+import 'package:amazon_clone/constants/utils.dart';
+import 'package:amazon_clone/features/auth/home/screen/widget/AddressBox.dart';
+import 'package:amazon_clone/features/search/search_product.dart';
+import 'package:amazon_clone/features/search/search_services.dart';
+import 'package:amazon_clone/models/product.dart';
 
-class HomeScreen extends StatefulWidget {
-  static const String routeName = '/home';
-  const HomeScreen({Key? key}) : super(key: key);
+class SearchScreen extends StatefulWidget {
+  static const String routeName = '/search-screen';
+  final String searchQuery;
+
+  const SearchScreen({
+    Key? key,
+    required this.searchQuery,
+  }) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _SearchScreenState extends State<SearchScreen> {
+  List<Product>? products;
+  final SearchServices searchServices = SearchServices();
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchSearchedProduct();
+  }
+
+  fetchSearchedProduct() async {
+    try {
+      products = await searchServices.fetchSearchedProduct(
+        context: context,
+        searchQuery: widget.searchQuery,
+      );
+    } catch (e) {
+      showSnacBar(context, 'Error fetching products: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   void navigateToSearchScreen(String query) {
-    Navigator.pushNamed(context, SearchScreen.routeName, arguments: query);
+    Navigator.pushNamed(
+      context,
+      SearchScreen.routeName,
+      arguments: query,
+    );
   }
 
   @override
@@ -47,9 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         prefixIcon: InkWell(
                           onTap: () {},
                           child: const Padding(
-                            padding: EdgeInsets.only(
-                              left: 6,
-                            ),
+                            padding: EdgeInsets.only(left: 6),
                             child: Icon(
                               Icons.search,
                               color: Colors.black,
@@ -95,18 +127,36 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: const [
-            AddressBox(),
-            SizedBox(height: 10),
-            TopCategories(),
-            SizedBox(height: 10),
-            CarosalImage(),
-            DealsOfTheDay(),
-          ],
-        ),
-      ),
+      body: isLoading
+          ? const Loader()
+          : products != null && products!.isEmpty
+              ? const Center(child: Text('No products found'))
+              : Column(
+                  children: [
+                    const AddressBox(),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: products!.length,
+                        itemBuilder: (context, index) {
+                          return GestureDetector(
+                            onTap: () {
+                              // Add navigation to the product detail screen here
+                              // Navigator.pushNamed(
+                              //   context,
+                              //   ProductDetailScreen.routeName,
+                              //   arguments: products![index],
+                              // );
+                            },
+                            child: SearchedProduct(
+                              product: products![index],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
     );
   }
 }

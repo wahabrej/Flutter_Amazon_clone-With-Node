@@ -28,6 +28,16 @@ class _PostScreenState extends State<PostScreen> {
     setState(() {});
   }
 
+  void deleteProduct(Product product, int index) {
+    adminServices.deleteProduct(
+        context: context,
+        product: product,
+        onSuccess: () {
+          products!.removeAt(index);
+          setState(() {});
+        });
+  }
+
   navigatAddproduct() {
     Navigator.pushNamed(context, AddProductScreen.routeName);
   }
@@ -37,46 +47,87 @@ class _PostScreenState extends State<PostScreen> {
     return products == null
         ? const Loader()
         : Scaffold(
+            appBar: AppBar(
+              title: const Text('Products'),
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    // Handle any action if needed
+                  },
+                  icon: const Icon(Icons.more_vert),
+                ),
+              ],
+            ),
             body: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2), // Ensure this is an int
-                itemCount: products!.length, // Ensure this is an int
+                    crossAxisCount: 2),
+                itemCount: products!.length,
                 itemBuilder: (context, index) {
                   final productData = products![index];
-
-                  // Debugging: Check the type of imageData
                   final imageData = productData.images.isNotEmpty
                       ? productData.images[0]['data'] as String
                       : null;
 
-                  print('Image data type: ${imageData.runtimeType}'); // Debugging
+                  final image =
+                      imageData != null ? base64Decode(imageData) : null;
 
-                  final image = imageData != null ? base64Decode(imageData) : null;
-
-                  return Column(
-                    children: [
-                      SizedBox(
-                        height: 140,
-                        child: image != null
-                            ? Image.memory(
-                                image,
-                                fit: BoxFit.cover,
-                              )
-                            : const Placeholder(), // Use a placeholder if no image
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(child: Text(productData.name)),
-                        ],
-                      )
-                    ],
+                  return Card(
+                    elevation: 5,
+                    margin: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          height: 140,
+                          width: double.infinity,
+                          child: image != null
+                              ? Image.memory(
+                                  image,
+                                  fit: BoxFit.cover,
+                                )
+                              : const Placeholder(), // Use a placeholder if no image
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(productData.name),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      '\$${productData.price.toString()}',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  deleteProduct(productData,
+                                      index); // Handle delete action
+                                },
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 }),
             floatingActionButton: FloatingActionButton(
               child: const Icon(
                 Icons.add,
-                color: Colors.black,
+                color: Colors.white,
               ),
               onPressed: navigatAddproduct,
               tooltip: "Add a Product",
